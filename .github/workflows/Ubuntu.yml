@@ -16,4 +16,4 @@ jobs:
           python-version: '3.x'
 
       - name: Run Tmate Script
-        run: python3 Tmate.py
+        run: python3 Workflow.py
