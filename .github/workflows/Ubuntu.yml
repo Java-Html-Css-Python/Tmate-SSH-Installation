@@ -1,4 +1,4 @@
-name: Run Tmate Script on Ubuntu So Get Ubuntu Terminal
+name: Run Tmate Script on Ubuntu
 
 on:
   workflow_dispatch:  # Manual trigger
