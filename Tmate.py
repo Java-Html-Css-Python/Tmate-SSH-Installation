@@ -6,7 +6,7 @@ import shutil
 
 def install_tmate_apt():
     try:
-        print("Using apt-based installation...")
+        print("Using apt-based installation (Debian/Ubuntu)...")
         subprocess.check_call(['sudo', 'apt', 'update'])
         subprocess.check_call(['sudo', 'apt', 'install', '-y', 'tmate'])
         print("tmate installed successfully on an apt-based system!")
@@ -16,7 +16,7 @@ def install_tmate_apt():
 
 def install_tmate_pacman():
     try:
-        print("Using pacman-based installation...")
+        print("Using pacman-based installation (Arch Linux)...")
         subprocess.check_call(['sudo', 'pacman', '-Syu', '--noconfirm'])
         subprocess.check_call(['sudo', 'pacman', '-S', '--noconfirm', 'tmate'])
         print("tmate installed successfully on a pacman-based system!")
@@ -26,7 +26,7 @@ def install_tmate_pacman():
 
 def install_tmate_redhat():
     try:
-        print("Using Red Hat-based installation...")
+        print("Using Red Hat-based installation (Fedora/CentOS/RHEL)...")
         if shutil.which("dnf"):
             subprocess.check_call(['sudo', 'dnf', 'update', '-y'])
             subprocess.check_call(['sudo', 'dnf', 'install', '-y', 'tmate'])
@@ -34,11 +34,21 @@ def install_tmate_redhat():
             subprocess.check_call(['sudo', 'yum', 'update', '-y'])
             subprocess.check_call(['sudo', 'yum', 'install', '-y', 'tmate'])
         else:
-            print("No recognized package manager found for Red Hat-based system (dnf or yum required).")
+            print("No recognized Red Hat package manager found (dnf or yum required).")
             sys.exit(1)
         print("tmate installed successfully on a Red Hat-based system!")
     except subprocess.CalledProcessError as e:
         print(f"Error during Red Hat installation: {e}")
+        sys.exit(1)
+
+def install_tmate_zypper():
+    try:
+        print("Using zypper installation (openSUSE/SUSE)...")
+        subprocess.check_call(['sudo', 'zypper', 'refresh'])
+        subprocess.check_call(['sudo', 'zypper', 'install', '-y', 'tmate'])
+        print("tmate installed successfully on a SUSE-based system!")
+    except subprocess.CalledProcessError as e:
+        print(f"Error during zypper installation: {e}")
         sys.exit(1)
 
 def install_tmate_brew():
@@ -73,12 +83,15 @@ def main():
     print(f"Detected OS: {current_os}")
 
     if current_os == 'Linux':
+        # Check for package managers in order
         if shutil.which("apt"):
             install_tmate_apt()
         elif shutil.which("pacman"):
             install_tmate_pacman()
         elif shutil.which("dnf") or shutil.which("yum"):
             install_tmate_redhat()
+        elif shutil.which("zypper"):
+            install_tmate_zypper()
         else:
             print("Unsupported package manager on Linux. Please install tmate manually.")
             sys.exit(1)
