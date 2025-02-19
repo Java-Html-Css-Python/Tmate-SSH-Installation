@@ -24,6 +24,23 @@ def install_tmate_pacman():
         print(f"Error during pacman installation: {e}")
         sys.exit(1)
 
+def install_tmate_redhat():
+    try:
+        print("Using Red Hat-based installation...")
+        if shutil.which("dnf"):
+            subprocess.check_call(['sudo', 'dnf', 'update', '-y'])
+            subprocess.check_call(['sudo', 'dnf', 'install', '-y', 'tmate'])
+        elif shutil.which("yum"):
+            subprocess.check_call(['sudo', 'yum', 'update', '-y'])
+            subprocess.check_call(['sudo', 'yum', 'install', '-y', 'tmate'])
+        else:
+            print("No recognized package manager found for Red Hat-based system (dnf or yum required).")
+            sys.exit(1)
+        print("tmate installed successfully on a Red Hat-based system!")
+    except subprocess.CalledProcessError as e:
+        print(f"Error during Red Hat installation: {e}")
+        sys.exit(1)
+
 def install_tmate_brew():
     try:
         print("Using Homebrew installation on macOS...")
@@ -46,8 +63,6 @@ def install_tmate_choco():
 def run_tmate():
     try:
         print("Starting tmate...")
-        # This will launch tmate interactively. If you want to add arguments,
-        # simply append them to the list below.
         subprocess.check_call(['tmate'])
     except subprocess.CalledProcessError as e:
         print(f"Error running tmate: {e}")
@@ -58,29 +73,27 @@ def main():
     print(f"Detected OS: {current_os}")
 
     if current_os == 'Linux':
-        # Check for apt or pacman package managers.
         if shutil.which("apt"):
             install_tmate_apt()
         elif shutil.which("pacman"):
             install_tmate_pacman()
+        elif shutil.which("dnf") or shutil.which("yum"):
+            install_tmate_redhat()
         else:
             print("Unsupported package manager on Linux. Please install tmate manually.")
             sys.exit(1)
-
     elif current_os == 'Darwin':  # macOS
         if shutil.which("brew"):
             install_tmate_brew()
         else:
             print("Homebrew is not installed. Please install Homebrew first.")
             sys.exit(1)
-
     elif current_os == 'Windows':
         if shutil.which("choco"):
             install_tmate_choco()
         else:
             print("Chocolatey is not installed. Please install Chocolatey or install tmate manually.")
             sys.exit(1)
-
     else:
         print("Unsupported operating system.")
         sys.exit(1)
