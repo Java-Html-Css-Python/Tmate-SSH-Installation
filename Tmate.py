@@ -4,6 +4,7 @@ import sys
 import platform
 import shutil
 import os
+import time
 
 def install_tmate_apt():
     try:
@@ -34,10 +35,12 @@ def install_tmate_choco():
         print(f"Error during Chocolatey installation: {e}")
         sys.exit(1)
 
-def run_tmate():
+def start_tmate_session():
     try:
-        print("Starting tmate interactively...")
-        subprocess.check_call(['tmate'])
+        print("Starting tmate session...")
+        # Start tmate in a new session in the background.
+        # Adjust the command if you need tmate to output the SSH details.
+        subprocess.check_call(['tmate', '-F'])
     except subprocess.CalledProcessError as e:
         print(f"Error running tmate: {e}")
         sys.exit(1)
@@ -68,11 +71,21 @@ def main():
         print("Unsupported operating system.")
         sys.exit(1)
 
-    # If running in CI, skip the interactive session.
+    # In CI environments, we print a warning message.
     if os.getenv("CI"):
-        print("CI environment detected; skipping interactive tmate session.")
-    else:
-        run_tmate()
+        print("CI environment detected. This script will now keep running to allow interactive debugging.")
+
+    # Start tmate (this will print SSH connection info)
+    start_tmate_session()
+
+    # Prevent the job from completing immediately.
+    # Adjust the sleep time as needed (e.g., 3600 for 1 hour, or use 'sleep infinity' if supported).
+    print("Keeping the session open. Connect to the printed SSH URL now!")
+    try:
+        while True:
+            time.sleep(60)
+    except KeyboardInterrupt:
+        print("Exiting...")
 
 if __name__ == "__main__":
     main()
